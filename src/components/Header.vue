@@ -6,7 +6,7 @@
     <v-app-bar-nav-icon class="text-white" @click="drawer = !drawer"/>
 
     <v-app-bar-title class="app-title" style="color: #ffffff">
-      B O B A
+      B O B A V2
     </v-app-bar-title>
 
   </v-app-bar>
