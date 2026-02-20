@@ -4,9 +4,11 @@
         <span class="title-text">Boba Drinks</span>
     </div>
     <v-carousel
+      v-model="active"
       height="520"
       show-arrows="hover"
       hide-delimiter-background
+      hide-delimiters
       cycle
     >
       <v-carousel-item
@@ -62,6 +64,25 @@
       </v-carousel-item>
     </v-carousel>
 
+    <!-- custom buttons below -->
+    <div class="carousel-dots">
+      <v-btn
+        v-for="(_, i) in drinks"
+        :key="i"
+        size="x-small"
+        icon
+        variant="text"
+        class="dot-btn"
+        :class="{ active: active === i }"
+        :aria-label="`Go to slide ${i + 1}`"
+        @click="active = i"
+      >
+        <v-icon size="15">
+          {{ active === i ? 'mdi-circle' : 'mdi-circle-outline' }}
+        </v-icon>
+      </v-btn>
+    </div>
+
     <!-- Details Dialog-->
     <v-dialog v-model="dialogOpen" max-width="600">
       <v-card rounded="xl">
@@ -114,6 +135,8 @@
 
 <script setup>
 import { ref } from 'vue'
+
+const active = ref(0)
 
 const img = (file) => new URL(`../assets/boba/${file}`, import.meta.url).href
 
@@ -206,5 +229,19 @@ function openDrink(drink) {
   font-weight: 700;
   padding-bottom: 6px;
   border-bottom: 3px solid #C96B8A; /* underline */
+}
+
+.carousel-dots{
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.dot-btn :deep(.v-icon){
+  color: rgba(201, 107, 138, 0.45);
+}
+
+.dot-btn.active :deep(.v-icon){
+  color: #C96B8A;
 }
 </style>
