@@ -3,66 +3,90 @@
     <div class="section-title">
         <span class="title-text">Boba Drinks</span>
     </div>
-    <v-carousel
-      v-model="active"
-      height="520"
-      show-arrows="hover"
-      hide-delimiter-background
-      hide-delimiters
-      cycle
+    <div
+      @mouseenter="isCycling = false"
+      @mouseleave="isCycling = true"
     >
-      <v-carousel-item
-        v-for="drink in drinks"
-        :key="drink.id"
+      <v-carousel
+        v-model="active"
+        height="520"
+        show-arrows="hover"
+        hide-delimiter-background
+        hide-delimiters
+        :cycle="isCycling"
       >
-        <div class="slide-wrap">
-        <v-card
-          class="mx-auto"
-          max-width="900"
-          rounded="xl"
-          elevation="4"
-          role="button"
-          tabindex="0"
-          @click="openDrink(drink)"
-          @keyup.enter="openDrink(drink)"
+        <v-carousel-item
+          v-for="drink in drinks"
+          :key="drink.id"
         >
-          <v-img
-            :src="drink.image"
-            height="320"
-            contain
-            class="carousel-img"
+          <div class="slide-wrap">
+          <v-card
+            class="mx-auto drink-card"
+            max-width="900"
+            rounded="xl"
+            elevation="4"
+            role="button"
+            tabindex="0"
+            @mouseenter="isCycling = false"
+            @mouseleave="isCycling = true"
+            @focusin="isCycling = false"
+            @focusout="isCycling = true"
+            @click="openDrink(drink)"
+            @keyup.enter="openDrink(drink)"
           >
-            <v-chip
-              class="ma-3"
-              color="#C96B8A"
+            <!-- favorite heart (top-right) -->
+            <v-btn
+              class="fav-btn"
+              icon
+              size="small"
               variant="flat"
+              @click.stop="toggleFavorite(drink.id)"
+              @mousedown.stop
+              :aria-label="isFavorite(drink.id) ? 'Unfavorite' : 'Favorite'"
             >
-              {{ drink.tag }}
-            </v-chip>
-          </v-img>
+              <v-icon
+                :icon="isFavorite(drink.id) ? 'mdi-heart' : 'mdi-heart-outline'" 
+                size="26"
+              />
+            </v-btn>
+            <v-img
+              :src="drink.image"
+              height="320"
+              contain
+              class="carousel-img"
+            >
+              <v-chip
+                class="ma-3"
+                color="#C96B8A"
+                variant="flat"
+              >
+                {{ drink.tag }}
+              </v-chip>
+            </v-img>
 
-          <v-card-title class="text-h6 font-weight-bold">
-            {{ drink.name }}
-          </v-card-title>
+            <v-card-title class="text-h6 font-weight-bold">
+              {{ drink.name }}
+            </v-card-title>
 
-          <v-card-subtitle>
-            {{ drink.description }}
-          </v-card-subtitle>
+            <v-card-subtitle>
+              {{ drink.description }}
+            </v-card-subtitle>
 
-          <v-card-text class="d-flex align-center justify-space-between">
-            <div class="text-body-2">
-              Base: <strong>{{ drink.base }}</strong>
-              <br />
-              Topping: <strong>{{ drink.topping }}</strong>
-            </div>
-            <div class="text-body-1 font-weight-bold">
-              ${{ drink.price.toFixed(2) }}
-            </div>
-          </v-card-text>
-        </v-card>
-        </div>
-      </v-carousel-item>
-    </v-carousel>
+            <v-card-text class="d-flex align-center justify-space-between">
+              <div class="text-body-2">
+                Base: <strong>{{ drink.base }}</strong>
+                <br />
+                Topping: <strong>{{ drink.topping }}</strong>
+              </div>
+              <div class="text-body-1 font-weight-bold">
+                ${{ drink.price.toFixed(2) }}
+              </div>
+            </v-card-text>
+          </v-card>
+          </div>
+        </v-carousel-item>
+      </v-carousel>
+    </div>
 
     <!-- custom buttons below -->
     <div class="carousel-dots">
@@ -124,9 +148,9 @@
 
         <v-card-actions class="justify-end">
           <v-btn variant="text" @click="dialogOpen = false">Close</v-btn>
-          <v-btn color="#c96b8a" variant="flat" @click="dialogOpen = false">
-            Choose This Drink
-          </v-btn>
+          <!-- <v-btn color="#c96b8a" variant="flat" @click="dialogOpen = false">
+            Favorite
+          </v-btn> -->
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -139,6 +163,21 @@ import { ref } from 'vue'
 const active = ref(0)
 
 const img = (file) => new URL(`../assets/boba/${file}`, import.meta.url).href
+
+const favorites = ref(new Set())
+
+const isCycling = ref(true)
+
+function isFavorite(id) {
+  return favorites.value.has(id)
+}
+
+function toggleFavorite(id) {
+  const next = new Set(favorites.value) // ensure reactivity updates
+  if (next.has(id)) next.delete(id)
+  else next.add(id)
+  favorites.value = next
+}
 
 const drinks = [
   {
@@ -242,6 +281,23 @@ function openDrink(drink) {
 }
 
 .dot-btn.active :deep(.v-icon){
+  color: #C96B8A;
+}
+
+.drink-card{
+  position: relative;
+}
+
+.fav-btn{
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+}
+
+.fav-btn :deep(.v-icon){
   color: #C96B8A;
 }
 </style>
